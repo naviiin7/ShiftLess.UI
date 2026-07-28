@@ -1,0 +1,67 @@
+<div class="container mt-5" style="max-width:450px;">
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h2 class="text-center mb-4">
+                ShiftLess Login
+            </h2>
+
+            <div
+                *ngIf="errorMessage"
+                class="alert alert-danger">
+
+                {{ errorMessage }}
+
+            </div>
+
+            <form [formGroup]="loginForm"
+                  (ngSubmit)="login()">
+
+                <div class="mb-3">
+
+                    <label>Email</label>
+
+                    <input
+                        class="form-control"
+                        type="email"
+                        formControlName="email">
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label>Password</label>
+
+                    <input
+                        class="form-control"
+                        type="password"
+                        formControlName="password">
+
+                </div>
+
+                <button
+                    class="btn btn-dark w-100"
+                    type="submit"
+                    [disabled]="submitting">
+
+                    {{ submitting ? 'Logging in...' : 'Login' }}
+
+                </button>
+
+            </form>
+
+            <p class="text-center mt-3 mb-0">
+
+                Don't have an account?
+
+                <a routerLink="/register">Register</a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>

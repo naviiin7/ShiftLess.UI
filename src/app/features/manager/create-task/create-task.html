@@ -1,0 +1,173 @@
+<div class="container py-5">
+
+    <h2>Create Task</h2>
+
+    <p class="text-muted mb-4">
+        Publish a new task for workers.
+    </p>
+
+    <div
+        *ngIf="successMessage"
+        class="alert alert-success">
+
+        {{successMessage}}
+
+    </div>
+
+    <div
+        *ngIf="errorMessage"
+        class="alert alert-danger">
+
+        {{errorMessage}}
+
+    </div>
+
+    <form
+        [formGroup]="form"
+        (ngSubmit)="create()">
+
+        <div class="mb-3">
+
+            <label class="form-label">
+
+                Title
+
+            </label>
+
+            <input
+                class="form-control"
+                formControlName="title">
+
+        </div>
+
+        <div class="mb-3">
+
+            <label class="form-label">
+
+                Description
+
+            </label>
+
+            <textarea
+                rows="4"
+                class="form-control"
+                formControlName="description">
+
+            </textarea>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+
+                    Budget
+
+                </label>
+
+                <input
+                    type="number"
+                    class="form-control"
+                    formControlName="budget">
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+
+                    Required Workers
+
+                </label>
+
+                <input
+                    type="number"
+                    class="form-control"
+                    formControlName="requiredWorkers">
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+
+                    Start Time
+
+                </label>
+
+                <input
+                    type="datetime-local"
+                    class="form-control"
+                    formControlName="startTime">
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+
+                    Working Hours
+
+                </label>
+
+                <input
+                    type="number"
+                    class="form-control"
+                    formControlName="workingHours">
+
+                <small
+                    class="text-danger"
+                    *ngIf="form.controls.workingHours.invalid && form.controls.workingHours.touched">
+
+                    Working hours must be at least 1.
+
+                </small>
+
+                <small
+                    *ngIf="!(form.controls.workingHours.invalid && form.controls.workingHours.touched)"
+                    class="text-muted">
+
+                    How long the task runs once it starts.
+
+                </small>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+
+                    Leave Notice (Hours)
+
+                </label>
+
+                <input
+                    type="number"
+                    class="form-control"
+                    formControlName="leaveNoticeHours">
+
+            </div>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            [disabled]="isSaving">
+
+            {{isSaving ? 'Creating...' : 'Create Task'}}
+
+        </button>
+
+    </form>
+
+</div>

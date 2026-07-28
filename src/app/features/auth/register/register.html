@@ -1,0 +1,153 @@
+<div class="container mt-5" style="max-width:450px;">
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h2 class="text-center mb-4">
+                Create Account
+            </h2>
+
+            <div
+                *ngIf="errorMessage"
+                class="alert alert-danger">
+
+                {{ errorMessage }}
+
+            </div>
+
+            <div
+                *ngIf="successMessage"
+                class="alert alert-success">
+
+                {{ successMessage }}
+
+            </div>
+
+            <form
+                [formGroup]="registerForm"
+                (ngSubmit)="register()">
+
+                <div class="mb-3">
+
+                    <label>Full Name</label>
+
+                    <input
+                        class="form-control"
+                        formControlName="fullName">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Email</label>
+
+                    <input
+                        class="form-control"
+                        type="email"
+                        formControlName="email">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Phone</label>
+
+                    <input
+                        class="form-control"
+                        formControlName="phone">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Password</label>
+
+                    <input
+                        class="form-control"
+                        type="password"
+                        formControlName="password">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Confirm Password</label>
+
+                    <input
+                        class="form-control"
+                        type="password"
+                        formControlName="confirmPassword">
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="form-label d-block">
+                        I want to...
+                    </label>
+
+                    <div class="form-check form-check-inline">
+
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            id="findWork"
+                            [value]="false"
+                            formControlName="isBusinessOwner">
+
+                        <label
+                            class="form-check-label"
+                            for="findWork">
+
+                            Find Work
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-check form-check-inline">
+
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            id="postTasks"
+                            [value]="true"
+                            formControlName="isBusinessOwner">
+
+                        <label
+                            class="form-check-label"
+                            for="postTasks">
+
+                            Post Tasks
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="btn btn-dark w-100"
+                    type="submit"
+                    [disabled]="submitting">
+
+                    {{ submitting ? 'Creating account...' : 'Register' }}
+
+                </button>
+
+            </form>
+
+            <p class="text-center mt-3 mb-0">
+
+                Already have an account?
+
+                <a routerLink="/login">Log in</a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>

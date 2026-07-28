@@ -1,0 +1,67 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+    <div class="container">
+
+        <a
+            class="navbar-brand fw-bold"
+            [routerLink]="homeLink()">
+
+            ShiftLess
+
+        </a>
+
+        <div class="ms-auto d-flex align-items-center gap-2">
+
+            <!-- Logged Out -->
+
+            <ng-container *ngIf="!authService.isLoggedIn()">
+
+                <a
+                
+                    *ngIf="currentUrl !== '/login'"
+                    class="btn btn-outline-light"
+                    routerLink="/login">
+
+                    Login
+
+                </a>
+
+
+                <a
+                
+                    *ngIf="currentUrl !== '/register'"
+                    class="btn btn-warning"
+                    routerLink="/register">
+
+                    Register
+
+                </a>
+
+            </ng-container>
+
+            <!-- Logged In -->
+
+            <ng-container *ngIf="authService.isLoggedIn()">
+
+                <span class="text-light me-2">
+
+                    Hi, {{ authService.currentUser()?.fullName }}
+
+                </span>
+
+                <button
+                    type="button"
+                    class="btn btn-outline-light"
+                    (click)="logout()">
+
+                    Logout
+
+                </button>
+
+            </ng-container>
+
+        </div>
+
+    </div>
+
+</nav>

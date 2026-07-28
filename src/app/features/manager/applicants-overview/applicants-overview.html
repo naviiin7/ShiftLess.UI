@@ -1,0 +1,127 @@
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="mb-1">Applicants</h2>
+
+            <p class="text-muted mb-0">
+                Across all of your created tasks.
+            </p>
+
+        </div>
+
+        <button
+            class="btn btn-outline-primary"
+            (click)="load()">
+
+            Refresh
+
+        </button>
+
+    </div>
+
+    <div
+        *ngIf="loading"
+        class="text-center py-5">
+
+        <div class="spinner-border text-primary"></div>
+
+        <p class="mt-3">Loading applicants...</p>
+
+    </div>
+
+    <div
+        *ngIf="errorMessage"
+        class="alert alert-danger">
+
+        {{ errorMessage }}
+
+    </div>
+
+    <div
+        *ngIf="!loading && rows.length === 0"
+        class="alert alert-info">
+
+        No applicants yet across any of your tasks.
+
+    </div>
+
+    <div
+        *ngIf="!loading && rows.length > 0"
+        class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Task</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr *ngFor="let row of rows">
+
+                    <td>{{ row.taskTitle }}</td>
+                    <td>{{ row.fullName }}</td>
+                    <td>{{ row.email }}</td>
+
+                    <td>
+
+                        <span
+                            class="badge"
+                            [ngClass]="{
+
+                                'bg-warning text-dark': row.status === 'Pending',
+                                'bg-success': row.status === 'Accepted',
+                                'bg-danger': row.status === 'Rejected'
+
+                            }">
+
+                            {{ row.status }}
+
+                        </span>
+
+                    </td>
+
+                    <td class="text-end">
+
+                        <button
+                            class="btn btn-success btn-sm me-2"
+                            (click)="accept(row)"
+                            [disabled]="row.status !== 'Pending' || actingId === row.applicationId">
+
+                            Accept
+
+                        </button>
+
+                        <button
+                            class="btn btn-danger btn-sm"
+                            (click)="reject(row)"
+                            [disabled]="row.status !== 'Pending' || actingId === row.applicationId">
+
+                            Reject
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
