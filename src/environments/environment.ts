@@ -2,7 +2,7 @@ export const environment =
 {
   production: true,
 
-  apiUrl: 'http://ShiftLess.onrender.com/api'
+  apiUrl: 'https://argus-gu06.onrender.com'
 };
 
 
