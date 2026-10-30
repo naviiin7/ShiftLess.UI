@@ -6,6 +6,8 @@ export interface TaskDetailsModel {
 
   description: string;
 
+  location: string;
+
   budget: number;
 
   requiredWorkers: number;
@@ -23,5 +25,7 @@ export interface TaskDetailsModel {
   status: string;
 
   canComplete: boolean;
+
+  isPaid: boolean;
 
 }

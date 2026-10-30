@@ -10,4 +10,6 @@ export interface RegisterRequest {
 
   isBusinessOwner: boolean;
 
+  otpCode: string;
+
 }

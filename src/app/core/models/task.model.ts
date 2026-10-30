@@ -6,6 +6,8 @@ export interface TaskModel {
 
   description: string;
 
+  location: string;
+
   budget: number;
 
   requiredWorkers: number;

@@ -1,0 +1,72 @@
+:host {
+    display: block;
+    margin-top: auto;
+}
+
+.foot {
+    background: #0f172a;
+    color: #cbd5e1;
+}
+
+.foot-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.foot-logo {
+    display: block;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+}
+
+.foot-brand p {
+    margin: 0;
+    max-width: 340px;
+    font-size: .92rem;
+    color: #94a3b8;
+}
+
+.foot-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+}
+
+.foot-links a,
+.link-btn {
+    color: #cbd5e1;
+    font-weight: 500;
+    font-size: .92rem;
+    transition: color .15s ease;
+}
+
+.link-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.foot-links a:hover,
+.link-btn:hover {
+    color: #fff;
+}
+
+.foot-bottom {
+    border-top: 1px solid rgba(148, 163, 184, .18);
+    text-align: center;
+    padding: 16px 20px;
+    font-size: .82rem;
+    color: #64748b;
+}

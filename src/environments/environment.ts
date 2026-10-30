@@ -1,8 +1,8 @@
 export const environment = 
 {
-  production: false,
+  production: true,
 
-  apiUrl: 'https://localhost:7098/api'
+  apiUrl: 'http://ShiftLess.onrender.com/api'
 };
 
 

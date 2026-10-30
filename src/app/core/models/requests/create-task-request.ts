@@ -4,6 +4,8 @@ export interface CreateTaskRequest {
 
   description: string;
 
+  location: string;
+
   budget: number;
 
   requiredWorkers: number;

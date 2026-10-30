@@ -1,91 +1,165 @@
-<div class="container py-5">
+<section class="dash">
 
-    <h2 class="mb-2">
-        Manager Dashboard
-    </h2>
+    <header class="dash-head">
 
-    <p class="text-muted mb-5">
-        Manage your tasks and applicants.
-    </p>
+        <div>
+            <h1>Manager dashboard</h1>
+            <p>Your tasks, applicants and conversations in one place.</p>
+        </div>
 
-    <div class="row g-4">
+        <a class="btn btn-brand" routerLink="/manager/create-task">+ New task</a>
 
-        <div class="col-lg-6">
+    </header>
 
-            <div class="card shadow-sm h-100">
+    <!-- quick actions -->
+    <div class="quick">
 
-                <div class="card-body">
-
-                    <h4>Create Task</h4>
-
-                    <p>Create a new task request.</p>
-                    <a
-                    
-                        routerLink="/manager/create-task"
-                        class="btn btn-primary">
-
-                        Create
-
-                    </a>
-
-                </div>
-
+        <a class="qcard" routerLink="/manager/my-tasks">
+            <span class="qicon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+            </span>
+            <div>
+                <strong>My tasks</strong>
+                <small>View and manage</small>
             </div>
+        </a>
 
-        </div>
-
-        <div class="col-lg-6">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <h4>My Created Tasks</h4>
-
-                    <p>View and manage all your tasks.</p>
-
-                    <a
-                        routerLink="/manager/my-tasks"
-                        class="btn btn-success">
-
-                        Open
-
-                    </a>
-
-                </div>
-
+        <a class="qcard" routerLink="/manager/applicants">
+            <span class="qicon violet">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </span>
+            <div>
+                <strong>Applicants</strong>
+                <small>Review applications</small>
             </div>
-
-        </div>
-
-        <div class="col-lg-6">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <h4>Applicants</h4>
-
-                    <p>Review worker applications across all your tasks.</p>
-                    <a
-                    
-                        routerLink="/manager/applicants"
-                        class="btn btn-info">
-
-                        Review
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-6">
-
-        </div>
+        </a>
 
     </div>
 
-</div>
+    <!-- messages -->
+    <div class="inbox" [class.chat-open]="selected()">
+
+        <aside class="inbox-list">
+
+            <div class="inbox-title">
+
+                <h2>Messages</h2>
+
+                @if (totalUnread() > 0) {
+                    <span class="pill">{{ totalUnread() }} new</span>
+                }
+
+            </div>
+
+            @if (loading()) {
+
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+
+            } @else if (error()) {
+
+                <div class="inbox-empty">
+                    {{ error() }}
+                    <button type="button" class="retry" (click)="load(true)">Try again</button>
+                </div>
+
+            } @else if (sorted().length === 0) {
+
+                <div class="inbox-empty">
+                    <span class="empty-icon">&#128172;</span>
+                    No conversations yet.<br>
+                    They appear once a worker is accepted on one of your tasks.
+                </div>
+
+            } @else {
+
+                @for (c of sorted(); track c.taskId) {
+
+                    <button
+                        type="button"
+                        class="conv"
+                        [class.active]="selectedId() === c.taskId"
+                        (click)="select(c)">
+
+                        <span class="avatar">{{ initials(c.taskTitle) }}</span>
+
+                        <span class="conv-body">
+
+                            <span class="conv-top">
+                                <strong>{{ c.taskTitle }}</strong>
+                                <small>{{ when(c.lastMessageAt) }}</small>
+                            </span>
+
+                            <span class="conv-bottom">
+                                <span class="conv-preview" [class.bold]="(unread()[c.taskId] ?? 0) > 0">
+                                    {{ preview(c) }}
+                                </span>
+
+                                @if ((unread()[c.taskId] ?? 0) > 0) {
+                                    <span class="badge-unread">{{ unread()[c.taskId] }}</span>
+                                }
+                            </span>
+
+                        </span>
+
+                    </button>
+
+                }
+
+            }
+
+        </aside>
+
+        <section class="inbox-chat">
+
+            @for (c of selectedAsList(); track c.taskId) {
+
+                <div class="chat-head">
+
+                    <button type="button" class="back" (click)="back()" aria-label="Back to conversations">&larr;</button>
+
+                    <span class="avatar sm">{{ initials(c.taskTitle) }}</span>
+
+                    <div class="chat-head-text">
+                        <strong>{{ c.taskTitle }}</strong>
+                        <small>{{ statusLabel(c.status) }} &#183; {{ c.acceptedWorkers }} worker(s)</small>
+                    </div>
+
+                    <a class="details" [routerLink]="['/manager/task-details', c.taskId]">Details</a>
+
+                </div>
+
+                <app-chat-widget [taskId]="c.taskId"></app-chat-widget>
+
+            } @empty {
+
+                <div class="chat-placeholder">
+
+                    <svg viewBox="0 0 120 100" aria-hidden="true">
+                        <rect x="10" y="14" width="70" height="44" rx="14" fill="#e0e7ff"/>
+                        <path d="M26 58l-8 14 20-14z" fill="#e0e7ff"/>
+                        <rect x="44" y="40" width="66" height="40" rx="14" fill="#c7d2fe"/>
+                        <path d="M96 80l10 12-24-12z" fill="#c7d2fe"/>
+                        <circle cx="30" cy="36" r="4" fill="#818cf8"/>
+                        <circle cx="45" cy="36" r="4" fill="#818cf8"/>
+                        <circle cx="60" cy="36" r="4" fill="#818cf8"/>
+                    </svg>
+
+                    <strong>Select a conversation</strong>
+                    <span>Pick a task on the left to start chatting.</span>
+
+                </div>
+
+            }
+
+        </section>
+
+    </div>
+
+</section>

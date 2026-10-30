@@ -1,0 +1,77 @@
+.pay-backdrop {
+
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2500;
+
+}
+
+.pay-dialog {
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(460px, 92vw);
+    max-height: 92vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    z-index: 2501;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+
+}
+
+.pay-header {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+
+}
+
+.pay-check {
+
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #198754;
+    color: #fff;
+    font-size: 34px;
+
+}
+
+.test-cards {
+
+    background: #f8f9fa;
+    border: 1px dashed #adb5bd;
+    border-radius: 8px;
+    padding: 10px 12px;
+
+}
+
+.test-card-btn {
+
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 4px 0;
+    background: transparent;
+    border: none;
+    font-size: 0.85rem;
+    font-family: monospace;
+    text-align: left;
+    cursor: pointer;
+
+}
+
+.test-card-btn:hover {
+
+    color: #0d6efd;
+
+}

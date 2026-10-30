@@ -1,5 +1,36 @@
-<footer class="bg-dark text-white text-center py-3">
+<footer class="foot">
 
-    © 2026 ShiftLess
+    <div class="foot-inner">
+
+        <div class="foot-brand">
+            <span class="foot-logo">ShiftLess</span>
+            <p>Flexible workforce management. Post tasks, find people, get it done.</p>
+        </div>
+
+        <nav class="foot-links" aria-label="Footer">
+
+            <a routerLink="/">Home</a>
+
+            @if (isLoggedIn()) {
+
+                <a [routerLink]="dashboardLink()">Dashboard</a>
+
+                <button type="button" class="link-btn" (click)="logout()">Log out</button>
+
+            } @else {
+
+                <a routerLink="/login">Log in</a>
+
+                <a routerLink="/register">Create account</a>
+
+            }
+
+        </nav>
+
+    </div>
+
+    <div class="foot-bottom">
+        &copy; {{ year }} ShiftLess. All rights reserved.
+    </div>
 
 </footer>

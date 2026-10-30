@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { TaskService } from '../../../core/services/task.service';
 import { TaskModel } from '../../../core/models/task.model';
@@ -8,14 +9,21 @@ import { TaskModel } from '../../../core/models/task.model';
   selector: 'app-open-tasks',
   standalone: true,
   imports: [
-    CommonModule
+    CommonModule,
+    FormsModule
   ],
   templateUrl: './open-tasks.html',
   styleUrl: './open-tasks.scss'
 })
 export class OpenTasks implements OnInit {
 
+  allTasks: TaskModel[] = [];
+
   tasks: TaskModel[] = [];
+
+  locations: string[] = [];
+
+  selectedLocation = '';
 
   isLoading = true;
 
@@ -48,7 +56,17 @@ export class OpenTasks implements OnInit {
 
         next: tasks => {
 
-          this.tasks = tasks ?? [];
+          this.allTasks = tasks ?? [];
+
+          this.locations = Array.from(
+            new Set(
+              this.allTasks
+                .map(t => t.location)
+                .filter(l => !!l)
+            )
+          ).sort();
+
+          this.applyFilter();
 
           this.isLoading = false;
 
@@ -69,6 +87,16 @@ export class OpenTasks implements OnInit {
         }
 
       });
+
+  }
+
+  applyFilter(): void {
+
+    this.tasks = this.selectedLocation
+      ? this.allTasks.filter(t => t.location === this.selectedLocation)
+      : this.allTasks;
+
+    this.cdr.detectChanges();
 
   }
 

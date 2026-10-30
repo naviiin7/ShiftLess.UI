@@ -5,6 +5,7 @@ import {
   BehaviorSubject,
   catchError,
   filter,
+  from,
   switchMap,
   take,
   throwError
@@ -69,17 +70,15 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       isRefreshing = true;
       refreshedToken$.next(null);
 
-      return authService.refreshToken().pipe(
+            return from (authService.ensureFreshToken()).pipe(
 
-        switchMap(response => {
-
-          authService.saveUser(response);
+        switchMap(() => {
 
           isRefreshing = false;
-          refreshedToken$.next(response.token);
+          refreshedToken$.next(authService.getToken());
 
           return next(req.clone({
-            setHeaders: { Authorization: `Bearer ${response.token}` }
+            setHeaders: { Authorization: `Bearer ${authService.getToken()}` }
           }));
 
         }),

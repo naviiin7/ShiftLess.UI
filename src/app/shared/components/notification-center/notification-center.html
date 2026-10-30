@@ -1,0 +1,23 @@
+<div class="toast-stack">
+
+    <div
+        *ngFor="let toast of toasts"
+        class="toast-item"
+        (click)="open(toast)">
+
+        <button
+            class="toast-close"
+            (click)="$event.stopPropagation(); dismiss(toast.id)"
+            aria-label="Dismiss">
+
+            &times;
+
+        </button>
+
+        <div class="toast-title">{{ toast.title }}</div>
+
+        <div class="toast-body">{{ toast.body }}</div>
+
+    </div>
+
+</div>

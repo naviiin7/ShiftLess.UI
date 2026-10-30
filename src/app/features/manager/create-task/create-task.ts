@@ -42,6 +42,8 @@ export class CreateTask {
 
       description: ['', Validators.required],
 
+      location: ['', [Validators.required, Validators.maxLength(100)]],
+
       budget: [0, [Validators.required, Validators.min(1)]],
 
       requiredWorkers: [1, [Validators.required, Validators.min(1)]],
@@ -70,8 +72,14 @@ export class CreateTask {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const request =
-      this.form.getRawValue() as CreateTaskRequest;
+    const raw = this.form.getRawValue();
+
+    const request = {
+      ...raw,
+      // datetime-local has no timezone; interpret it as the user's local
+      // time and send the real UTC instant (ends with "Z").
+      startTime: new Date(raw.startTime as string).toISOString()
+    } as CreateTaskRequest;
 
     this.taskService.createTask(request).subscribe({
 

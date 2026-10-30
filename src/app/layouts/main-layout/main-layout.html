@@ -1,7 +1,15 @@
-<app-navbar></app-navbar>
+<div
+    class="app-shell"
+    style="min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;">
 
-<main class="container-fluid p-0">
-    <router-outlet></router-outlet>
-</main>
+    <app-navbar></app-navbar>
 
-<app-footer></app-footer>
+    <main class="app-main" style="flex: 1 0 auto; width: 100%;">
+        <router-outlet></router-outlet>
+    </main>
+
+    <app-footer style="display: block; margin-top: auto;"></app-footer>
+
+</div>
+
+<app-notification-center></app-notification-center>

@@ -125,6 +125,22 @@
 
                     </button>
 
+                    <button
+                        class="btn btn-outline-primary w-100 mt-2"
+                        (click)="toggleChat(task.taskId)">
+
+                        {{ openChatTaskId === task.taskId ? 'Hide Chat' : 'Chat' }}
+
+                    </button>
+
+                    <div
+                        *ngIf="openChatTaskId === task.taskId"
+                        class="mt-3">
+
+                        <app-chat-widget [taskId]="task.taskId"></app-chat-widget>
+
+                    </div>
+
                 </div>
 
             </div>

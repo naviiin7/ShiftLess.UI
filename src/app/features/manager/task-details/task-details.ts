@@ -1,16 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ChangeDetectorRef } from '@angular/core';
+
 import { TaskService } from '../../../core/services/task.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { TaskDetailsModel } from '../../../core/models/task-details.model';
+import { ChatWidget } from '../../../shared/components/chat-widget/chat-widget';
+import { CardPaymentDialog } from '../../../shared/components/card-payment-dialog/card-payment-dialog';
 
 @Component({
   selector: 'app-task-details',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink
+    RouterLink,
+    ChatWidget,
+    CardPaymentDialog
   ],
   templateUrl: './task-details.html',
   styleUrl: './task-details.scss'
@@ -23,11 +28,14 @@ export class TaskDetails implements OnInit {
 
   errorMessage = '';
 
+  showPayDialog = false;
+
   constructor(
-      private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit(): void {
@@ -72,13 +80,16 @@ export class TaskDetails implements OnInit {
 
         error: err => {
 
-          this.errorMessage =
-            err.error?.message ??
-            'Unable to load task.';
+          const msg = err.error?.message ?? 'Unable to load task.';
+
+          this.errorMessage = msg;
+
+          this.toastService.error(msg);
 
           this.loading = false;
 
           this.cdr.detectChanges();
+
         }
 
       });
@@ -99,15 +110,21 @@ export class TaskDetails implements OnInit {
 
         next: () => {
 
+          this.toastService.success('Task marked as completed.');
+
           this.load(this.task!.taskId);
 
         },
 
         error: err => {
 
-          this.errorMessage =
-            err.error?.message ??
-            'Unable to complete task.';
+          const msg = err.error?.message ?? 'Unable to complete task.';
+
+          this.errorMessage = msg;
+
+          this.toastService.error(msg);
+
+          this.cdr.detectChanges();
 
         }
 
@@ -129,6 +146,8 @@ export class TaskDetails implements OnInit {
 
         next: () => {
 
+          this.toastService.success('Task deleted.');
+
           this.router.navigate([
             '/manager/my-tasks'
           ]);
@@ -137,13 +156,45 @@ export class TaskDetails implements OnInit {
 
         error: err => {
 
-          this.errorMessage =
-            err.error?.message ??
-            'Unable to delete task.';
+          const msg = err.error?.message ?? 'Unable to delete task.';
+
+          this.errorMessage = msg;
+
+          this.toastService.error(msg);
+
+          this.cdr.detectChanges();
 
         }
 
       });
+
+  }
+
+  openPayDialog(): void {
+
+    if (!this.task || this.task.status !== 'Completed' || this.task.isPaid) {
+      return;
+    }
+
+    this.showPayDialog = true;
+
+  }
+
+  closePayDialog(): void {
+
+    this.showPayDialog = false;
+
+  }
+
+  onPaid(): void {
+
+    this.showPayDialog = false;
+
+    this.toastService.success('Payment successful.');
+
+    if (this.task) {
+      this.load(this.task.taskId);
+    }
 
   }
 

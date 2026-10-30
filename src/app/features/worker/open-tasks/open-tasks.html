@@ -1,6 +1,6 @@
 <div class="container py-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
 
         <h2>Open Tasks</h2>
 
@@ -11,6 +11,32 @@
             Refresh
 
         </button>
+
+    </div>
+
+    <div
+        class="mb-4"
+        *ngIf="locations.length > 0">
+
+        <label class="form-label">Filter by area</label>
+
+        <select
+            class="form-select"
+            style="max-width: 320px;"
+            [(ngModel)]="selectedLocation"
+            (ngModelChange)="applyFilter()">
+
+            <option value="">All areas</option>
+
+            <option
+                *ngFor="let loc of locations"
+                [value]="loc">
+
+                {{ loc }}
+
+            </option>
+
+        </select>
 
     </div>
 
@@ -46,7 +72,7 @@
         *ngIf="!isLoading && tasks.length == 0"
         class="alert alert-info">
 
-        No tasks available right now.
+        No tasks available{{ selectedLocation ? ' in ' + selectedLocation : '' }} right now.
 
     </div>
 
@@ -82,6 +108,12 @@
 
                     </div>
 
+                    <p class="text-muted mb-2">
+
+                        &#128205; {{ task.location }}
+
+                    </p>
+
                     <p>
                         {{ task.description }}
                     </p>
@@ -92,7 +124,7 @@
 
                         <strong>Budget:</strong>
 
-                        ₹{{ task.budget }}
+                        &#8377;{{ task.budget }}
 
                     </p>
 

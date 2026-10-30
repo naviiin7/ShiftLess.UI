@@ -59,6 +59,14 @@ export class EditTask implements OnInit {
         ]
       ],
 
+      location: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(100)
+        ]
+      ],
+
       budget: [
         1,
         [
@@ -138,6 +146,7 @@ export class EditTask implements OnInit {
 
               title: task.title,
               description: task.description,
+              location: task.location,
               budget: task.budget,
               requiredWorkers: task.requiredWorkers,
               startTime: this.toDateTimeLocal(task.startTime),
@@ -189,8 +198,13 @@ export class EditTask implements OnInit {
 
     this.errorMessage = '';
 
-    const request =
-      this.form.getRawValue() as UpdateTaskRequest;
+    const raw = this.form.getRawValue();
+
+    const request = {
+      ...raw,
+      // Local wall-clock time from the input -> real UTC instant.
+      startTime: new Date(raw.startTime as string).toISOString()
+    } as UpdateTaskRequest;
 
     this.taskService
       .updateTask(this.taskId, request)

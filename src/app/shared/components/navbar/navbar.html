@@ -1,67 +1,60 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<header class="nav-wrap">
 
-    <div class="container">
+    <nav class="nav">
 
-        <a
-            class="navbar-brand fw-bold"
-            [routerLink]="homeLink()">
-
-            ShiftLess
-
+        <a class="brand" routerLink="/" (click)="closeMenu()">
+            <span class="brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 7v5l3 2"/>
+                </svg>
+            </span>
+            <span>ShiftLess</span>
         </a>
 
-        <div class="ms-auto d-flex align-items-center gap-2">
+        <button
+            class="burger"
+            type="button"
+            aria-label="Toggle menu"
+            [attr.aria-expanded]="menuOpen()"
+            (click)="toggleMenu()">
+            <span></span><span></span><span></span>
+        </button>
 
-            <!-- Logged Out -->
+        <div class="nav-links" [class.open]="menuOpen()">
 
-            <ng-container *ngIf="!authService.isLoggedIn()">
-
+            @for (link of links(); track link.path) {
                 <a
-                
-                    *ngIf="currentUrl !== '/login'"
-                    class="btn btn-outline-light"
-                    routerLink="/login">
-
-                    Login
-
+                    [routerLink]="link.path"
+                    routerLinkActive="active"
+                    (click)="closeMenu()">
+                    {{ link.label }}
                 </a>
+            }
 
+            <div class="nav-spacer"></div>
 
-                <a
-                
-                    *ngIf="currentUrl !== '/register'"
-                    class="btn btn-warning"
-                    routerLink="/register">
+            @if (isLoggedIn()) {
 
-                    Register
+                @if (displayName()) {
+                    <span class="greet">Hi, <strong>{{ displayName() }}</strong></span>
+                }
 
-                </a>
+                <span class="role-pill">{{ roleLabel() }}</span>
 
-            </ng-container>
+                <button type="button" class="btn-logout" (click)="logout()">Log out</button>
 
-            <!-- Logged In -->
+            } @else {
 
-            <ng-container *ngIf="authService.isLoggedIn()">
+                <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Log in</a>
 
-                <span class="text-light me-2">
+                <a class="btn-cta" routerLink="/register" (click)="closeMenu()">Get started</a>
 
-                    Hi, {{ authService.currentUser()?.fullName }}
-
-                </span>
-
-                <button
-                    type="button"
-                    class="btn btn-outline-light"
-                    (click)="logout()">
-
-                    Logout
-
-                </button>
-
-            </ng-container>
+            }
 
         </div>
 
-    </div>
+    </nav>
 
-</nav>
+</header>

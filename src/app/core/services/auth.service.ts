@@ -1,7 +1,6 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, throwError } from 'rxjs';
-
+import { Observable, map, throwError, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 import { LoginRequest } from '../models/requests/login-request';
@@ -34,11 +33,11 @@ export class AuthService {
     private http: HttpClient
   ) {
 
-    // Another tab logged in as a different user, or logged out.
-    // Reloading is deliberate here rather than just re-syncing the
-    // signal — this guarantees every component's in-flight data,
-    // guards, and in-memory state all restart clean instead of
-    // mixing state from two different sessions.
+    // Another tab changed the stored session.
+    //  - Different user, login or logout -> reload so this tab restarts
+    //    cleanly instead of mixing state from two sessions.
+    //  - Same user (just a token refresh)  -> silently adopt the new
+    //    tokens, so this tab never uses an already-rotated refresh token.
     window.addEventListener('storage', (event: StorageEvent) => {
 
       if (event.key !== this.USER_KEY) {
@@ -49,7 +48,21 @@ export class AuthService {
         return;
       }
 
-      window.location.reload();
+      const oldIdentity = this.identityFromRaw(event.oldValue);
+      const newIdentity = this.identityFromRaw(event.newValue);
+
+      if (oldIdentity !== newIdentity) {
+
+        window.location.reload();
+        return;
+
+      }
+
+      const refreshed = this.parseUser(event.newValue);
+
+      if (refreshed) {
+        this._currentUser.set(refreshed);
+      }
 
     });
 
@@ -182,14 +195,72 @@ export class AuthService {
 
   }
 
-  private isTokenExpired(token: string): boolean {
+  isAccessTokenValid(): boolean {
+
+    const token = this.getToken();
+
+    if (!token) {
+      return false;
+    }
+
+    return !this.isTokenExpired(token);
+
+  }
+
+  private parseUser(raw: string | null): LoginResponse | null {
+
+    if (!raw) {
+      return null;
+    }
+
+    try {
+
+      return JSON.parse(raw) as LoginResponse;
+
+    } catch {
+
+      return null;
+
+    }
+
+  }
+
+  /**
+   * Stable identity of a stored session: the user id inside the JWT.
+   * Returns null when logged out / unreadable. Two sessions of the same
+   * user (different tokens after a refresh) give the same identity.
+   */
+  private identityFromRaw(raw: string | null): string | null {
+
+    const user = this.parseUser(raw);
+
+    if (!user?.token) {
+      return null;
+    }
+
+    const payload = this.decodePayload(user.token);
+
+    if (!payload) {
+      return null;
+    }
+
+    const id =
+      payload['nameid'] ??
+      payload['sub'] ??
+      payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+    return id !== undefined && id !== null ? String(id) : null;
+
+  }
+
+  private decodePayload(token: string): any | null {
 
     try {
 
       const payloadBase64 = token.split('.')[1];
 
       if (!payloadBase64) {
-        return true;
+        return null;
       }
 
       const normalized = payloadBase64
@@ -201,19 +272,81 @@ export class AuthService {
         '='
       );
 
-      const payload = JSON.parse(atob(padded));
-
-      if (!payload.exp) {
-        return false;
-      }
-
-      return Date.now() >= payload.exp * 1000;
+      return JSON.parse(atob(padded));
 
     } catch {
 
-      return true;
+      return null;
 
     }
+
+  }
+
+  private isTokenExpired(token: string): boolean {
+
+    const payload = this.decodePayload(token);
+
+    if (!payload) {
+      return true;
+    }
+
+    if (!payload.exp) {
+      return false;
+    }
+
+    return Date.now() >= payload.exp * 1000;
+
+  }
+
+  private refreshInFlight: Promise<LoginResponse> | null = null;
+
+  /**
+   * Shared by the HTTP interceptor and the SignalR connection so only
+   * one refresh call is ever in flight at a time. Refresh tokens
+   * rotate server-side (each one is single-use), so two concurrent
+   * refreshes would get the second one rejected as already-revoked.
+   *
+   * The refresh response is merged over the existing user, so profile
+   * fields (name, email, ...) survive even if the refresh endpoint
+   * doesn't send them back.
+   */
+  ensureFreshToken(): Promise<LoginResponse> {
+
+    if (this.refreshInFlight) {
+
+      return this.refreshInFlight;
+
+    }
+
+    this.refreshInFlight = firstValueFrom(this.refreshToken())
+      .then(response => {
+
+        const previous = this._currentUser();
+
+        const received = Object.fromEntries(
+          Object.entries(response ?? {}).filter(
+            ([, value]) => value !== null && value !== undefined && value !== ''
+          )
+        ) as Partial<LoginResponse>;
+
+        const merged = { ...(previous ?? {}), ...received } as LoginResponse;
+
+        this.saveUser(merged);
+
+        this.refreshInFlight = null;
+
+        return merged;
+
+      })
+      .catch(err => {
+
+        this.refreshInFlight = null;
+
+        throw err;
+
+      });
+
+    return this.refreshInFlight;
 
   }
 
