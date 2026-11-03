@@ -43,6 +43,13 @@ export const routes: Routes = [
             .then(c => c.Register)
       },
 
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./features/auth/forgot-password/forgot-password')
+            .then(c => c.ForgotPassword)
+      },
+
       // ==========================
       // Worker
       // ==========================

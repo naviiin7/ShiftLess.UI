@@ -10,6 +10,13 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { OtpService } from '../../../core/services/otp.service';
 import { RegisterRequest } from '../../../core/models/requests/register-request';
+import {
+  apiErrorMessage,
+  cleanPhone,
+  phoneNumber,
+  strongPassword,
+  trimmedEmail
+} from '../../../core/validators/auth-validators';
 
 @Component({
   selector: 'app-register',
@@ -59,21 +66,23 @@ export class Register implements OnDestroy {
 
       email: this.fb.nonNullable.control('', [
         Validators.required,
-        Validators.email
+        trimmedEmail
       ]),
 
       otpCode: this.fb.nonNullable.control('', [
         Validators.pattern(/^\d{6}$/)
       ]),
 
+      // Same rule as the API: 10 to 15 digits, optional leading +.
       phone: this.fb.nonNullable.control('', [
         Validators.required,
-        Validators.pattern(/^\+?[0-9]{10,15}$/)
+        phoneNumber
       ]),
 
+      // Same rule as the API: 8+ characters, upper, lower and a number.
       password: this.fb.nonNullable.control('', [
         Validators.required,
-        Validators.minLength(6)
+        strongPassword
       ]),
 
       confirmPassword: this.fb.nonNullable.control('', [
@@ -122,7 +131,7 @@ export class Register implements OnDestroy {
 
     }
 
-    const email = emailControl.value.trim();
+    const email = emailControl.value.trim().toLowerCase();
 
     this.sendingOtp = true;
 
@@ -151,8 +160,7 @@ export class Register implements OnDestroy {
         this.sendingOtp = false;
 
         this.errorMessage =
-          err.error?.message ??
-          'Unable to send the verification code.';
+          apiErrorMessage(err, 'Unable to send the verification code.');
 
         this.cdr.detectChanges();
 
@@ -171,6 +179,8 @@ export class Register implements OnDestroy {
 
       this.registerForm.markAllAsTouched();
 
+      this.errorMessage = 'Please fix the highlighted fields.';
+
       return;
 
     }
@@ -186,7 +196,7 @@ export class Register implements OnDestroy {
 
     }
 
-    if (!/^\d{6}$/.test(formValue.otpCode)) {
+    if (!/^\d{6}$/.test(formValue.otpCode.trim())) {
 
       this.errorMessage = 'Enter the 6-digit verification code.';
 
@@ -203,12 +213,12 @@ export class Register implements OnDestroy {
     }
 
     const request: RegisterRequest = {
-      fullName: formValue.fullName,
-      email: formValue.email.trim(),
-      phone: formValue.phone,
+      fullName: formValue.fullName.trim(),
+      email: formValue.email.trim().toLowerCase(),
+      phone: cleanPhone(formValue.phone),
       password: formValue.password,
       isBusinessOwner: formValue.isBusinessOwner,
-      otpCode: formValue.otpCode
+      otpCode: formValue.otpCode.trim()
     };
 
     this.submitting = true;
@@ -237,8 +247,7 @@ export class Register implements OnDestroy {
         this.submitting = false;
 
         this.errorMessage =
-          err.error?.message ??
-          'Unable to register. Please try again.';
+          apiErrorMessage(err, 'Unable to register. Please try again.');
 
         this.cdr.detectChanges();
 

@@ -9,6 +9,10 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginRequest } from '../../../core/models/requests/login-request';
 import { CommonModule } from '@angular/common';
+import {
+  apiErrorMessage,
+  trimmedEmail
+} from '../../../core/validators/auth-validators';
 
 @Component({
   selector: 'app-login',
@@ -36,7 +40,7 @@ export class Login {
 
       email: this.fb.nonNullable.control('', [
         Validators.required,
-        Validators.email
+        trimmedEmail
       ]),
 
       password: this.fb.nonNullable.control('', [
@@ -55,12 +59,16 @@ export class Login {
 
       this.loginForm.markAllAsTouched();
 
+      this.errorMessage = 'Enter a valid email and your password.';
+
       return;
 
     }
 
     const request: LoginRequest = {
-      email: this.loginForm.controls.email.value,
+      // Mobile keyboards capitalize and add spaces; the API compares
+      // lower-case emails.
+      email: this.loginForm.controls.email.value.trim().toLowerCase(),
       password: this.loginForm.controls.password.value
     };
 
@@ -93,14 +101,12 @@ export class Login {
 
       error: (err) => {
 
-        // Always reset submitting state and force a render —
-        // this is what was leaving the form stuck after a
-        // failed login attempt.
+        // Always reset submitting state and force a render so the form
+        // never stays stuck after a failed attempt.
         this.submitting = false;
 
         this.errorMessage =
-          err.error?.message ??
-          'Invalid email or password.';
+          apiErrorMessage(err, 'Invalid email or password.');
 
         this.cdr.detectChanges();
 

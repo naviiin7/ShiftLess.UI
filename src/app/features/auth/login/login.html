@@ -63,7 +63,11 @@
                             id="email"
                             class="form-control"
                             type="email"
+                            inputmode="email"
                             autocomplete="email"
+                            autocapitalize="none"
+                            autocorrect="off"
+                            spellcheck="false"
                             placeholder="you@example.com"
                             formControlName="email">
 
@@ -90,6 +94,10 @@
                             placeholder="Your password"
                             formControlName="password">
 
+                    </div>
+
+                    <div class="text-end mt-2">
+                        <a routerLink="/forgot-password" class="small">Forgot password?</a>
                     </div>
 
                 </div>
