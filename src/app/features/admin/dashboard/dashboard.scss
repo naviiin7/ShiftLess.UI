@@ -1,0 +1,54 @@
+:host {
+    display: block;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-label {
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--ink-500, #64748b);
+}
+
+.stat-value {
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.row-line {
+    display: flex;
+    justify-content: space-between;
+    padding: .5rem 0;
+    border-bottom: 1px solid #eef0f6;
+}
+
+.row-line:last-child {
+    border-bottom: 0;
+}
+
+.bar-row {
+    margin-bottom: .85rem;
+}
+
+.bar-row:last-child {
+    margin-bottom: 0;
+}
+
+.progress {
+    height: 8px;
+    margin-top: 4px;
+    border-radius: 999px;
+}
+
+/* The dialog uses Bootstrap's CSS only; this dims the page behind it. */
+.modal {
+    background: rgba(15, 23, 42, .5);
+    overflow-y: auto;
+}

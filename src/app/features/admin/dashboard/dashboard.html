@@ -1,76 +1,195 @@
 <div class="container py-5">
 
-    <h2 class="mb-2">Admin Dashboard</h2>
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
 
-    <p class="text-muted mb-4">
-        Platform-wide overview and controls.
-    </p>
+        <div>
+            <h2 class="mb-1">Admin Dashboard</h2>
+            <p class="text-muted mb-0">Platform-wide overview and controls.</p>
+        </div>
 
-    <div
-        *ngIf="loading"
-        class="text-center py-5">
+        <button
+            class="btn btn-outline-primary"
+            (click)="load()"
+            [disabled]="loading">
 
-        <div class="spinner-border text-primary"></div>
+            Refresh
 
-        <p class="mt-3">Loading platform data...</p>
+        </button>
 
     </div>
 
-    <div
-        *ngIf="errorMessage"
-        class="alert alert-danger">
+    <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+    </div>
 
+    <div *ngIf="errorMessage" class="alert alert-danger">
         {{ errorMessage }}
+    </div>
 
+    <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3">Loading platform data...</p>
     </div>
 
     <div *ngIf="!loading">
 
-        <div class="row g-4 mb-5">
+        <ul class="nav nav-tabs mb-4">
 
-            <div class="col-md-3">
+            <li class="nav-item">
+                <button
+                    class="nav-link"
+                    [class.active]="activeTab === 'overview'"
+                    (click)="setTab('overview')">
+                    Overview
+                </button>
+            </li>
 
-                <div class="card shadow-sm text-center p-3">
+            <li class="nav-item">
+                <button
+                    class="nav-link"
+                    [class.active]="activeTab === 'users'"
+                    (click)="setTab('users')">
+                    Users
+                    <span class="badge bg-secondary ms-1">{{ users.length }}</span>
+                </button>
+            </li>
 
-                    <h6 class="text-muted">Total Tasks</h6>
+            <li class="nav-item">
+                <button
+                    class="nav-link"
+                    [class.active]="activeTab === 'tasks'"
+                    (click)="setTab('tasks')">
+                    Tasks
+                    <span class="badge bg-secondary ms-1">{{ tasks.length }}</span>
+                </button>
+            </li>
 
-                    <h2>{{ tasks.length }}</h2>
+        </ul>
+
+        <!-- ================= OVERVIEW ================= -->
+        <div *ngIf="activeTab === 'overview'">
+
+            <div *ngIf="!stats" class="alert alert-info">
+                Statistics are not available right now.
+            </div>
+
+            <div *ngIf="stats">
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card stat p-3">
+                            <span class="stat-label">Users</span>
+                            <span class="stat-value">{{ stats.users.total }}</span>
+                            <small class="text-muted">{{ stats.users.blocked }} blocked</small>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card stat p-3">
+                            <span class="stat-label">Active tasks</span>
+                            <span class="stat-value">{{ activeTasks }}</span>
+                            <small class="text-muted">of {{ stats.tasks.total }} total</small>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card stat p-3">
+                            <span class="stat-label">Applications</span>
+                            <span class="stat-value">{{ stats.applications.total }}</span>
+                            <small class="text-muted">{{ stats.applications.pending }} pending</small>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-lg-3">
+                        <div class="card stat p-3">
+                            <span class="stat-label">Paid</span>
+                            <span class="stat-value">&#8377;{{ stats.totalPaidAmount | number:'1.0-0' }}</span>
+                            <small class="text-muted">{{ stats.paidPayments }} payment(s)</small>
+                        </div>
+                    </div>
 
                 </div>
 
-            </div>
+                <div class="row g-3">
 
-            <div class="col-md-3">
+                    <div class="col-lg-4">
+                        <div class="card p-3 h-100">
 
-                <div class="card shadow-sm text-center p-3">
+                            <h6 class="mb-3">Users</h6>
 
-                    <h6 class="text-muted">Active Tasks</h6>
+                            <div class="row-line">
+                                <span>Workers</span><strong>{{ stats.users.workers }}</strong>
+                            </div>
 
-                    <h2>{{ activeTasks }}</h2>
+                            <div class="row-line">
+                                <span>Managers</span><strong>{{ stats.users.managers }}</strong>
+                            </div>
 
-                </div>
+                            <div class="row-line">
+                                <span>Admins</span><strong>{{ stats.users.admins }}</strong>
+                            </div>
 
-            </div>
+                            <div class="row-line">
+                                <span>Blocked</span><strong>{{ stats.users.blocked }}</strong>
+                            </div>
 
-            <div class="col-md-3">
+                            <div class="row-line">
+                                <span>Chat messages</span><strong>{{ stats.totalChatMessages }}</strong>
+                            </div>
 
-                <div class="card shadow-sm text-center p-3">
+                        </div>
+                    </div>
 
-                    <h6 class="text-muted">Managers</h6>
+                    <div class="col-lg-4">
+                        <div class="card p-3 h-100">
 
-                    <h2>{{ totalManagers }}</h2>
+                            <h6 class="mb-3">Tasks by status</h6>
 
-                </div>
+                            <div class="bar-row" *ngFor="let bar of taskBars">
 
-            </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span>{{ bar.label }}</span>
+                                    <strong>{{ bar.value }}</strong>
+                                </div>
 
-            <div class="col-md-3">
+                                <div class="progress">
+                                    <div
+                                        class="progress-bar"
+                                        [ngClass]="bar.cls"
+                                        [style.width.%]="pct(bar.value, stats.tasks.total)">
+                                    </div>
+                                </div>
 
-                <div class="card shadow-sm text-center p-3">
+                            </div>
 
-                    <h6 class="text-muted">Workers</h6>
+                        </div>
+                    </div>
 
-                    <h2>{{ totalWorkers }}</h2>
+                    <div class="col-lg-4">
+                        <div class="card p-3 h-100">
+
+                            <h6 class="mb-3">Applications by status</h6>
+
+                            <div class="bar-row" *ngFor="let bar of applicationBars">
+
+                                <div class="d-flex justify-content-between small">
+                                    <span>{{ bar.label }}</span>
+                                    <strong>{{ bar.value }}</strong>
+                                </div>
+
+                                <div class="progress">
+                                    <div
+                                        class="progress-bar"
+                                        [ngClass]="bar.cls"
+                                        [style.width.%]="pct(bar.value, stats.applications.total)">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
 
                 </div>
 
@@ -78,56 +197,148 @@
 
         </div>
 
-        <ul class="nav nav-tabs mb-4">
+        <!-- ================= USERS ================= -->
+        <div *ngIf="activeTab === 'users'">
 
-            <li class="nav-item">
+            <div class="row g-2 mb-3">
 
-                <button
-                    class="nav-link"
-                    [class.active]="activeTab === 'tasks'"
-                    (click)="setTab('tasks')">
+                <div class="col-md-5">
+                    <input
+                        class="form-control"
+                        placeholder="Search name, email or phone"
+                        [(ngModel)]="userSearch">
+                </div>
 
-                    All Tasks
+                <div class="col-6 col-md-3">
+                    <select class="form-select" [(ngModel)]="roleFilter">
+                        <option value="all">All roles</option>
+                        <option value="Client">Workers</option>
+                        <option value="Manager">Managers</option>
+                        <option value="Admin">Admins</option>
+                    </select>
+                </div>
 
-                </button>
+                <div class="col-6 col-md-3">
+                    <select class="form-select" [(ngModel)]="statusFilter">
+                        <option value="all">All statuses</option>
+                        <option value="active">Active</option>
+                        <option value="blocked">Blocked</option>
+                    </select>
+                </div>
 
-            </li>
-
-            <li class="nav-item">
-
-                <button
-                    class="nav-link"
-                    [class.active]="activeTab === 'users'"
-                    (click)="setTab('users')">
-
-                    All Users
-
-                </button>
-
-            </li>
-
-        </ul>
-
-        <div *ngIf="activeTab === 'tasks'">
-
-            <div
-                *ngIf="tasks.length === 0"
-                class="alert alert-info">
-
-                No tasks on the platform yet.
+                <div class="col-md-1 d-flex align-items-center text-muted small">
+                    {{ filteredUsers.length }}
+                </div>
 
             </div>
 
-            <div
-                *ngIf="tasks.length > 0"
-                class="table-responsive">
+            <div *ngIf="filteredUsers.length === 0" class="alert alert-info">
+                No users match your filters.
+            </div>
+
+            <div *ngIf="filteredUsers.length > 0" class="table-responsive">
 
                 <table class="table table-hover align-middle">
 
                     <thead>
-
                         <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
 
+                    <tbody>
+
+                        <tr *ngFor="let user of filteredUsers" [class.table-secondary]="!user.isActive">
+
+                            <td>{{ user.fullName }}</td>
+
+                            <td>{{ user.email }}</td>
+
+                            <td>{{ user.phone || '—' }}</td>
+
+                            <td>
+                                <span
+                                    class="badge"
+                                    [ngClass]="{
+                                        'bg-dark': user.role === 'Admin',
+                                        'bg-success': user.role === 'Manager',
+                                        'bg-primary': user.role === 'Client'
+                                    }">
+                                    {{ roleLabel(user.role) }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span
+                                    class="badge"
+                                    [ngClass]="user.isActive ? 'bg-success' : 'bg-secondary'">
+                                    {{ user.isActive ? 'Active' : 'Blocked' }}
+                                </span>
+                            </td>
+
+                            <td class="text-end">
+
+                                <span *ngIf="user.role === 'Admin'" class="text-muted small">
+                                    Protected
+                                </span>
+
+                                <div *ngIf="user.role !== 'Admin'" class="d-inline-flex gap-1 flex-wrap justify-content-end">
+
+                                    <button
+                                        class="btn btn-outline-primary btn-sm"
+                                        (click)="openEdit(user)"
+                                        [disabled]="busyUserId === user.userId">
+                                        Edit
+                                    </button>
+
+                                    <button
+                                        class="btn btn-sm"
+                                        [ngClass]="user.isActive ? 'btn-outline-warning' : 'btn-outline-success'"
+                                        (click)="toggleBlock(user)"
+                                        [disabled]="busyUserId === user.userId">
+                                        {{ user.isActive ? 'Block' : 'Unblock' }}
+                                    </button>
+
+                                    <button
+                                        class="btn btn-outline-danger btn-sm"
+                                        (click)="deleteUser(user)"
+                                        [disabled]="busyUserId === user.userId || user.hasActivity"
+                                        [title]="user.hasActivity ? 'Has tasks, applications or messages: block instead' : 'Delete user'">
+                                        Delete
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ================= TASKS ================= -->
+        <div *ngIf="activeTab === 'tasks'">
+
+            <div *ngIf="tasks.length === 0" class="alert alert-info">
+                No tasks on the platform yet.
+            </div>
+
+            <div *ngIf="tasks.length > 0" class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead>
+                        <tr>
                             <th>Title</th>
                             <th>Manager</th>
                             <th>Budget</th>
@@ -135,9 +346,7 @@
                             <th>Start Time</th>
                             <th>Status</th>
                             <th class="text-end">Actions</th>
-
                         </tr>
-
                     </thead>
 
                     <tbody>
@@ -145,42 +354,36 @@
                         <tr *ngFor="let task of tasks">
 
                             <td>{{ task.title }}</td>
+
                             <td>{{ task.managerName }}</td>
-                            <td>₹{{ task.budget }}</td>
+
+                            <td>&#8377;{{ task.budget }}</td>
+
                             <td>{{ task.acceptedWorkers }} / {{ task.requiredWorkers }}</td>
+
                             <td>{{ task.startTime | date:'medium' }}</td>
 
                             <td>
-
                                 <span
                                     class="badge"
                                     [ngClass]="{
-
                                         'bg-primary': task.status === 'Open',
                                         'bg-warning text-dark': task.status === 'Full',
                                         'bg-info': task.status === 'InProgress',
                                         'bg-success': task.status === 'Completed',
                                         'bg-danger': task.status === 'Cancelled' || task.status === 'Expired'
-
                                     }">
-
                                     {{ task.status === 'Full' ? 'Assigned' : task.status }}
-
                                 </span>
-
                             </td>
 
                             <td class="text-end">
-
                                 <button
                                     class="btn btn-danger btn-sm"
                                     (click)="deleteTask(task)"
                                     [disabled]="deletingTaskId === task.taskId">
-
                                     {{ deletingTaskId === task.taskId ? 'Deleting...' : 'Delete' }}
-
                                 </button>
-
                             </td>
 
                         </tr>
@@ -193,64 +396,86 @@
 
         </div>
 
-        <div *ngIf="activeTab === 'users'">
+    </div>
 
-            <div
-                *ngIf="users.length === 0"
-                class="alert alert-info">
+</div>
 
-                No users found.
+<!-- ================= EDIT DIALOG ================= -->
+<div
+    class="modal d-block"
+    tabindex="-1"
+    role="dialog"
+    *ngIf="editing"
+    (click)="cancelEdit()">
+
+    <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Edit user</h5>
+                <button type="button" class="btn-close" aria-label="Close" (click)="cancelEdit()"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div *ngIf="editError" class="alert alert-danger py-2">
+                    {{ editError }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" [value]="editing.email" disabled>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="editName">Full name</label>
+                    <input
+                        id="editName"
+                        class="form-control"
+                        [(ngModel)]="editForm.fullName"
+                        maxlength="100">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="editPhone">Phone</label>
+                    <input
+                        id="editPhone"
+                        class="form-control"
+                        inputmode="tel"
+                        [(ngModel)]="editForm.phone">
+                </div>
+
+                <div class="mb-1">
+                    <label class="form-label" for="editRole">Role</label>
+                    <select id="editRole" class="form-select" [(ngModel)]="editForm.role">
+                        <option value="Client">Worker</option>
+                        <option value="Manager">Manager</option>
+                    </select>
+                    <div class="form-text">
+                        A role change applies the next time the user logs in.
+                    </div>
+                </div>
 
             </div>
 
-            <div
-                *ngIf="users.length > 0"
-                class="table-responsive">
+            <div class="modal-footer">
 
-                <table class="table table-hover align-middle">
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="cancelEdit()"
+                    [disabled]="saving">
+                    Cancel
+                </button>
 
-                    <thead>
-
-                        <tr>
-
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        <tr *ngFor="let user of users">
-
-                            <td>{{ user.fullName }}</td>
-                            <td>{{ user.email }}</td>
-
-                            <td>
-
-                                <span
-                                    class="badge"
-                                    [ngClass]="{
-
-                                        'bg-dark': user.role === 'Admin',
-                                        'bg-success': user.role === 'Manager',
-                                        'bg-primary': user.role !== 'Admin' && user.role !== 'Manager'
-
-                                    }">
-
-                                    {{ user.role }}
-
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="saveEdit()"
+                    [disabled]="saving">
+                    {{ saving ? 'Saving...' : 'Save changes' }}
+                </button>
 
             </div>
 
